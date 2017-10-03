@@ -1,3 +1,6 @@
 [submodule "lib/HooECS"]
 	path = lib/HooECS
 	url = https://github.com/Hoo-dini/HooECS
+[submodule ".\\lib\\HooECS"]
+	path = .\\lib\\HooECS
+	url = https://github.com/Hooodini/HooECS
