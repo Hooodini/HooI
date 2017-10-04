@@ -1,14 +1,17 @@
 local HoverableComponent = HooI.component.create("HoverableComponent")
 
-function HoverableComponent:initialize(enterCallback, leaveCallback, layer, x, y, w, h)
-    self.enterCallback = enterCallback or function() print("enter") end
-    self.leaveCallback = leaveCallback or function() print("leave") end
-    self.layer = layer or 1
-    self.x = x
-    self.y = y
-    self.w = w
-    self.h = h
-    self.hovered = false
+function HoverableComponent:initialize(...)
+	HooI.initComponent(self, {
+		{name = "enterCallback", varType = "function", default = function() print("enter") end}, 
+		{name = "leaveCallback", varType = "function", default = function() print("leave") end},
+		{name = "layer", varType = "number", default = 1},
+		{name = "x", varType = "number"},
+		{name = "y", varType = "number"},
+		{name = "w", varType = "number"},
+		{name = "h", varType = "number"},
+	}, ...)
+
+	self.hovered = false
 end
 
 function HoverableComponent:unload()

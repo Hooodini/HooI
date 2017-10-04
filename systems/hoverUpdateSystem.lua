@@ -25,7 +25,7 @@ function HoverUpdateSystem:onRemoveEntity(entity)
 	end
 end
 
-function HoverUpdateSystem:draw()
+function HoverUpdateSystem:update(dt)
     local mx, my = love.mouse.getPosition()
 
     local entityHovered = false
@@ -34,39 +34,35 @@ function HoverUpdateSystem:draw()
     	for _, entity in pairs(self.layers[i]) do
     		local hc = entity:get("HoverableComponent")
     		local wc = entity:get("WidgetComponent")
-    		--if hc then
 
-	    		local x = wc.x
-	    		if hc.x then
-	    			x = x + hc.x
-	    		end
-	    		local y = wc.y
-	    		if hc.y then
-	    			y = y + hc.y
-	    		end
-	    		local w = wc.w
-	    		if hc.w then
-	    			w = w + hc.w
-	    		end
-	    		local h = wc.h
-	    		if hc.h then
-	    			h = h + hc.h
-	    		end
+    		local x = wc.x
+    		if hc.x then
+    			x = x + hc.x
+    		end
+    		local y = wc.y
+    		if hc.y then
+    			y = y + hc.y
+    		end
+    		local w = wc.w
+    		if hc.w then
+    			w = w + hc.w
+    		end
+    		local h = wc.h
+    		if hc.h then
+    			h = h + hc.h
+    		end
 
-				if mx > x and mx < x + w and my > y and my < y + h then
-					if not hc.hovered then
-						hc.enterCallback()
-						hc.hovered = true
-					end
-				else
-					if hc.hovered then
-						hc.hovered = false
-						hc.leaveCallback()
-					end
+			if mx > x and mx < x + w and my > y and my < y + h then
+				if not hc.hovered then
+					hc.enterCallback()
+					hc.hovered = true
 				end
-			--[[else
-				self:removeEntity(entity)
-			end]]
+			else
+				if hc.hovered then
+					hc.hovered = false
+					hc.leaveCallback()
+				end
+			end
     	end
     end
 end

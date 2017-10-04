@@ -1,6 +1,6 @@
 folderPath = ... .. "."
 
-local lovetoys = require (folderPath .. "lib.lovetoys.lovetoys")
+local lovetoys = require (folderPath .. "lib.HooECS.lovetoys")
 lovetoys.initialize({
 	globals = false,
 	debug = true
@@ -13,6 +13,40 @@ HooI.component = lovetoys.Component;
 HooI.system = lovetoys.System;
 HooI.engine = lovetoys.Engine;
 HooI.class = lovetoys.class;
+
+HooI.initComponent = function(component, entries, args)
+	if args then
+		if #args > 0 then
+			-- Integer entries.
+			for k, v in pairs(entries) do
+				if args[k] then
+					if type(args[k]) == v["varType"] then
+						component[v["name"]] = args[k]
+					else
+						print(component.class.name .. " initialization error. " .. v["name"] .. " received wrong variable. " .. v["varType"] .. " expected. Got " .. type(args[k]))
+					end
+				else
+					if v["default"] then
+						component[v["name"]] = v["default"]
+					end
+				end
+			end
+		else
+			-- String entries
+			for k, v in pairs(entries) do
+				if args[v["name"]] then
+					component[v["name"]] = args[v["name"]]
+				end
+			end
+		end	
+	else
+		for _, entry in pairs(entries) do
+			if entry["default"] then
+				component[entry["name"]] = entry["default"]
+			end
+		end
+	end
+end
 
 -- Setup Systems
 HooI.systems = {} 
