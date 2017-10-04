@@ -19,7 +19,10 @@ HooI.initComponent = function(component, entries, ...)
 	-- If there are any args
 	if args[1] then
 		-- If args are a list of variables (will misbehave if a table is the only parameter)
-		if #args > 1 or type(args[1]) ~= "table" then
+		local listOfInts = false
+		::redo::
+		if #args > 1 or type(args[1]) ~= "table" or listOfInts then
+
 			-- args is a list of integers
 			for k, v in pairs(entries) do
 				if args[k] then
@@ -35,6 +38,12 @@ HooI.initComponent = function(component, entries, ...)
 				end
 			end
 		else
+			if args[1][1] then
+				if args[1][1].name and args[1][1].varType then
+					listOfInts = true
+					goto redo
+				end
+			end
 			args = args[1]
 			-- args is a list of strings
 			for k, v in pairs(entries) do
