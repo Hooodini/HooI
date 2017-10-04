@@ -14,16 +14,17 @@ HooI.system = lovetoys.System;
 HooI.engine = lovetoys.Engine;
 HooI.class = lovetoys.class;
 
-HooI.initComponent = function(component, entries, args)
-	if args then
-		if #args > 0 then
+HooI.initComponent = function(component, entries, ...)
+	args = {...}
+	if args[1] then
+		if #args > 1 or type(args[1]) ~= "table" then
 			-- Integer entries.
 			for k, v in pairs(entries) do
 				if args[k] then
 					if type(args[k]) == v["varType"] then
 						component[v["name"]] = args[k]
 					else
-						print(component.class.name .. " initialization error. " .. v["name"] .. " received wrong variable. " .. v["varType"] .. " expected. Got " .. type(args[k]))
+						print(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"")
 					end
 				else
 					if v["default"] then
@@ -32,10 +33,19 @@ HooI.initComponent = function(component, entries, args)
 				end
 			end
 		else
+			args = args[1]
 			-- String entries
 			for k, v in pairs(entries) do
 				if args[v["name"]] then
-					component[v["name"]] = args[v["name"]]
+					if type(args[v["name"]]) == v["varType"] then
+						component[v["name"]] = args[v["name"]]
+					else
+						print(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"")
+					end
+				else
+					if v["default"] then
+						component[v["name"]] = v["default"]
+					end
 				end
 			end
 		end	
