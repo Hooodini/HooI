@@ -24,7 +24,7 @@ HooI.initComponent = function(component, entries, ...)
 					if type(args[k]) == v["varType"] then
 						component[v["name"]] = args[k]
 					else
-						print(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"")
+						error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
 					end
 				else
 					if v["default"] then
@@ -40,7 +40,7 @@ HooI.initComponent = function(component, entries, ...)
 					if type(args[v["name"]]) == v["varType"] then
 						component[v["name"]] = args[v["name"]]
 					else
-						print(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"")
+						error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
 					end
 				else
 					if v["default"] then
