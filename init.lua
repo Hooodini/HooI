@@ -16,9 +16,11 @@ HooI.class = lovetoys.class;
 
 HooI.initComponent = function(component, entries, ...)
 	args = {...}
+	-- If there are any args
 	if args[1] then
+		-- If args are a list of variables (will misbehave if a table is the only parameter)
 		if #args > 1 or type(args[1]) ~= "table" then
-			-- Integer entries.
+			-- args is a list of integers
 			for k, v in pairs(entries) do
 				if args[k] then
 					if type(args[k]) == v["varType"] then
@@ -34,7 +36,7 @@ HooI.initComponent = function(component, entries, ...)
 			end
 		else
 			args = args[1]
-			-- String entries
+			-- args is a list of strings
 			for k, v in pairs(entries) do
 				if args[v["name"]] then
 					if type(args[v["name"]]) == v["varType"] then
@@ -50,6 +52,7 @@ HooI.initComponent = function(component, entries, ...)
 			end
 		end	
 	else
+		-- If no args were passed, initialize with default values.
 		for _, entry in pairs(entries) do
 			if entry["default"] then
 				component[entry["name"]] = entry["default"]
@@ -60,8 +63,8 @@ end
 
 -- Setup Systems
 HooI.systems = {} 
-HooI.systems.widgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
-HooI.systems.hoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
+HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
+HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
 
 -- Init Components
 local widgetComponent = require(folderPath .. "components.widgetComponent")
@@ -81,6 +84,20 @@ end
 function HooI:draw()
 	for _, canvas in pairs(self.activeCanvases) do
 		canvas:draw()
+	end
+end
+
+function HooI:addSystem(newSystem)
+	if newSystem.super then
+		if newSystem.super.name then
+			if newSystem.super.name == "System" then
+				if not self.systems[newSystem.name] then
+					self.systems[newSystem.name] = newSystem
+				else
+					print("Attempting to add a system that already exists (or has the same name as an existing system)")
+				end
+			end
+		end
 	end
 end
 
@@ -119,9 +136,8 @@ end
 HooI.canvas = require(folderPath .. "canvas");
 
 function HooI:newCanvas(name, active, systems)
-	local canvas = HooI.canvas(name, active)
-	canvas:addSystem(HooI.systems.widgetDrawSystem())
-	canvas:addSystem(HooI.systems.hoverUpdateSystem())
+	local canvas = HooI.canvas(name, active, systems)
+
 	table.insert(self.canvases, canvas)
 	if canvas.active then
 		table.insert(self.activeCanvases, canvas)

@@ -8,11 +8,19 @@ function Canvas:initialize(canvasName, active, systems)
 
 	self.widgets = {}
 	self.active = active or true
+
+	if type(systems) == "table" then
+		for _, v in pairs(systems) do
+			if HooI.systems[v] then
+				self:addSystem(HooI.systems[v])
+			end
+		end
+	end
 end
 
 function Canvas:addSystem(newSystem)
 	-- ToDo check newSystem type
-	self.engine:addSystem(newSystem)
+	self.engine:addSystem(newSystem())
 end
 
 function Canvas:startSystem(system)
