@@ -79,12 +79,18 @@ end
 HooI.systems = {} 
 HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
 HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
+HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
 
 -- Init Components
 local widgetComponent = require(folderPath .. "components.widgetComponent")
 HooI.hoverable = require(folderPath .. "components.hoverable")
 HooI.clickable = require(folderPath .. "components.clickable")
 HooI.drawable = require(folderPath .. "components.drawable")
+
+-- Init Events
+
+HooI.events.MousePressed = require(folderPath .. "events.MousePressed")
+HooI.events.MouseReleased = require(folderPath .. "events.MouseReleased")
 
 -- Canvas setup
 HooI.canvases = {};
@@ -102,6 +108,31 @@ function HooI:draw()
 		canvas:draw()
 	end
 end
+
+-- Return after the first widget used this event.
+function HooI:mousePressed(button, x, y)
+	for i = #self.activeCanvases, 1, -1 do
+		local val = self.activeCanvases[i]:mousePressed(x, y, button)
+		if val then
+			return val
+		end
+	end
+end
+
+-- Return after the first widget used this event.
+function HooI:mouseReleased(button, x, y)
+	for i = #self.activeCanvases, 1, -1 do
+		local val = self.activeCanvases[i]:mouseReleased(x, y, button)
+		if val then
+			return val
+		end
+	end
+end
+
+-- The love callback is lowercase. All function and variable names in this library will be lower camel case.
+-- But to be more user friendly, the original names will be made available too. 
+HooI.mousepressed = HooI.mousePressed
+HooI.mousereleased = HooI.mouseReleased
 
 function HooI:addSystem(newSystem)
 	if newSystem.super then

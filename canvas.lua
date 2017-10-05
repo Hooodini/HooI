@@ -28,11 +28,11 @@ function Canvas:draw()
 end
 
 function Canvas:mousePressed(x, y, button)
-	return self.eventManager:fireEvent(HooI.MousePressed(x, y, button))
+	return self.eventManager:fireEvent(HooI.events.MousePressed(x, y, button))
 end
 
 function Canvas:mouseReleased(x, y, button)
-	return self.eventManager:fireEvent(HooI.MouseReleased(x, y, button))
+	return self.eventManager:fireEvent(HooI.events.MouseReleased(x, y, button))
 end
 
 function Canvas:add(newWidget)
@@ -47,7 +47,7 @@ end
 
 function Canvas:addSystem(newSystem)
 	-- ToDo check newSystem type
-	self.engine:addSystem(newSystem())
+	self.engine:addSystem(newSystem(self))
 end
 
 function Canvas:startSystem(system)

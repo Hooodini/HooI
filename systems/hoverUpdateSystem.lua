@@ -1,6 +1,6 @@
 local HoverUpdateSystem = HooI.class("HoverUpdateSystem", HooI.system)
 
-function HoverUpdateSystem:initialize()
+function HoverUpdateSystem:initialize(canvas)
 	self.class.super:initialize()
 	self.layers = {}
 end
@@ -30,24 +30,26 @@ function HoverUpdateSystem:update(dt)
 
     local entityHovered = false
 
+    local wc, hc, x, y, w, h
+
     for i = #self.layers, 1, -1 do
     	for _, entity in pairs(self.layers[i]) do
-    		local hc = entity:get("HoverableComponent")
-    		local wc = entity:get("WidgetComponent")
+    		wc = entity:get("WidgetComponent")
+    		hc = entity:get("HoverableComponent")
 
-    		local x = wc.x
+    		x = wc.x
     		if hc.x then
     			x = x + hc.x
     		end
-    		local y = wc.y
+    		y = wc.y
     		if hc.y then
     			y = y + hc.y
     		end
-    		local w = wc.w
+    		w = wc.w
     		if hc.w then
     			w = w + hc.w
     		end
-    		local h = wc.h
+    		h = wc.h
     		if hc.h then
     			h = h + hc.h
     		end
