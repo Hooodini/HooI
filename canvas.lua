@@ -3,6 +3,7 @@ local Canvas = HooI.class("Canvas")
 function Canvas:initialize(canvasName, active, systems)
 	self.canvasName = canvasName or "GenericCanvas"
 	self.engine = HooI.engine()
+	self.eventManager = HooI.eventManager();
 
 	-- ToDo Add Systems
 
@@ -16,6 +17,32 @@ function Canvas:initialize(canvasName, active, systems)
 			end
 		end
 	end
+end
+
+function Canvas:update(dt)
+	self.engine:update(dt)
+end
+
+function Canvas:draw()
+	self.engine:draw()
+end
+
+function Canvas:mousePressed(x, y, button)
+	return self.eventManager:fireEvent(HooI.MousePressed(x, y, button))
+end
+
+function Canvas:mouseReleased(x, y, button)
+	return self.eventManager:fireEvent(HooI.MouseReleased(x, y, button))
+end
+
+function Canvas:add(newWidget)
+	-- ToDo check newWidget type
+	self.engine:addEntity(newWidget)
+end
+
+function Canvas:remove(widget, removeChildren)
+	-- ToDo check widget type
+	self.engine:removeEntity(widget, removeChildren)
 end
 
 function Canvas:addSystem(newSystem)
@@ -38,30 +65,13 @@ function Canvas:toggleSystem(system)
 	self.engine:toggleSystem(system)
 end
 
-function Canvas:add(newWidget)
-	-- ToDo check newWidget type
-	self.engine:addEntity(newWidget)
-end
-
-function Canvas:remove(widget, removeChildren)
-	-- ToDo check widget type
-	self.engine:removeEntity(widget, removeChildren)
-end
-
-function Canvas:update(dt)
-	self.engine:update(dt)
-end
-
+-- self.active will be updated by activateCanvas / deactivateCanvas
 function Canvas:activate()
-	self.active = true
+	HooI:activateCanvas(self)
 end
 
 function Canvas:deactivate()
-	self.active = false
-end
-
-function Canvas:draw()
-	self.engine:draw()
+	HooI:deactivateCanvas(self)
 end
 
 return Canvas

@@ -8,19 +8,23 @@ lovetoys.initialize({
 
 -- Setup Lovetoys stuff
 HooI = {}
-HooI.entity = lovetoys.Entity;
-HooI.component = lovetoys.Component;
-HooI.system = lovetoys.System;
-HooI.engine = lovetoys.Engine;
-HooI.class = lovetoys.class;
+HooI.entity = lovetoys.Entity
+HooI.component = lovetoys.Component
+HooI.system = lovetoys.System
+HooI.engine = lovetoys.Engine
+HooI.class = lovetoys.class
+HooI.eventManager = lovetoys.EventManager
 
+-- Util function for component variable initialization. Ugly but the resulting component creation and custom component writing is amazing!
 HooI.initComponent = function(component, entries, ...)
 	args = {...}
 	-- If there are any args
 	if args[1] then
-		-- If args are a list of variables (will misbehave if a table is the only parameter)
+		-- [1] Special case handling if the parameter was a single table. Dirty but will now behave as expected.
 		local listOfInts = false
 		::redo::
+
+		-- If args are a list of variables (will misbehave if a table is the only parameter)
 		if #args > 1 or type(args[1]) ~= "table" or listOfInts then
 
 			-- args is a list of integers
@@ -38,6 +42,7 @@ HooI.initComponent = function(component, entries, ...)
 				end
 			end
 		else
+			-- [2] Special case handling if the parameter was a single table. Dirty but will now behave as expected.
 			if args[1][1] then
 				if args[1][1].name and args[1][1].varType then
 					listOfInts = true
@@ -81,17 +86,19 @@ HooI.hoverable = require(folderPath .. "components.hoverable")
 HooI.clickable = require(folderPath .. "components.clickable")
 HooI.drawable = require(folderPath .. "components.drawable")
 
+-- Canvas setup
 HooI.canvases = {};
 HooI.activeCanvases = {};
 
+-- HooI interface
 function HooI:update(dt)
-	for _, canvas in pairs(self.activeCanvases) do
+	for _, canvas in ipairs(self.activeCanvases) do
 		canvas:update(dt)
 	end
 end
 
 function HooI:draw()
-	for _, canvas in pairs(self.activeCanvases) do
+	for _, canvas in ipairs(self.activeCanvases) do
 		canvas:draw()
 	end
 end
@@ -110,36 +117,54 @@ function HooI:addSystem(newSystem)
 	end
 end
 
-function HooI:activateCanvasByName(name)
-	local updated = 0
-	local notUpdated = 0
-	for _, canvas in pairs(self.canvases) do
-		if canvas.canvasName == name then
-			if canvas.active then
-				notUpdated = notUpdated + 1
-			else
-				canvas:activate()
-				updated = updated + 1
-			end
+function HooI:activateCanvas(canvas)
+	if not canvas.class.name == "Canvas" then
+		print("HooI:activate canvas error: Provided canvas is not of class \"Canvas\"!")
+		return
+	end
+
+	-- Don't add the same canvas multiple times
+	for _, c in pairs(self.canvases) do
+		if c == canvas then
+			return
 		end
 	end
-	return updated, notUpdated
+
+	table.insert(self.activeCanvases, canvas)
+	canvas.active = true
+
+	return true
+end
+
+function HooI:deactivateCanvas(canvas)
+	if not canvas.class.name == "Canvas" then
+		print("HooI:deactivate canvas error: Provided canvas is not of class \"Canvas\"!")
+		return
+	end
+
+	for k, c in pairs(self.activeCanvases) do
+		if c == canvas then
+			table.remove(self.activeCanvases, k)
+			canvas.active = false
+			return true
+		end
+	end
+end
+
+function HooI:activateCanvasByName(name)
+	for _, canvas in pairs(self.canvases) do
+		if canvas.canvasName == name then
+			return self:activateCanvas(canvas)
+		end
+	end
 end
 
 function HooI:deactivateCanvasByName(name)
-	local updated = 0
-	local notUpdated = 0
-	for _, canvas in pairs(self.canvases) do
+	for _, canvas in pairs(self.activeCanvases) do
 		if canvas.canvasName == name then
-			if not canvas.active then
-				notUpdated = notUpdated + 1
-			else
-				canvas:deactivate()
-				updated = updated + 1
-			end
+			return self:deactivateCanvas(canvas)
 		end
 	end
-	return updated, notUpdated
 end
 
 HooI.canvas = require(folderPath .. "canvas");
