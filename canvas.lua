@@ -3,7 +3,7 @@ local Canvas = HooI.class("Canvas")
 function Canvas:initialize(canvasName, active, systems)
 	self.canvasName = canvasName or "GenericCanvas"
 	self.engine = HooI.engine()
-	self.eventManager = HooI.eventManager();
+	self.eventManager = self.engine.eventManager
 
 	-- ToDo Add Systems
 
@@ -13,6 +13,7 @@ function Canvas:initialize(canvasName, active, systems)
 	if type(systems) == "table" then
 		for _, v in pairs(systems) do
 			if HooI.systems[v] then
+				--print(HooI.systems[v])
 				self:addSystem(HooI.systems[v])
 			end
 		end
@@ -28,11 +29,11 @@ function Canvas:draw()
 end
 
 function Canvas:mousePressed(x, y, button)
-	return self.eventManager:fireEvent(HooI.events.MousePressed(x, y, button))
+	return self.eventManager:fireEvent(HooI.events.MousePressedEvent(x, y, button))
 end
 
 function Canvas:mouseReleased(x, y, button)
-	return self.eventManager:fireEvent(HooI.events.MouseReleased(x, y, button))
+	return self.eventManager:fireEvent(HooI.events.MouseReleasedEvent(x, y, button))
 end
 
 function Canvas:add(newWidget)
@@ -72,6 +73,18 @@ end
 
 function Canvas:deactivate()
 	HooI:deactivateCanvas(self)
+end
+
+function Canvas:activateWidget(widget)
+	-- ToDo Check widget type
+	widget:get("WidgetComponent").active = true
+	self.eventManager:fireEvent(ActivationEvent(widget, true))
+end
+
+function Canvas:deactivateWidget(widget)
+	-- ToDo Check widget type
+	widget:get("WidgetComponent").active = false
+	self.eventManager:fireEvent(ActivationEvent(widget, false))
 end
 
 return Canvas

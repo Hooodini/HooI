@@ -7,6 +7,7 @@ end
 
 function HoverUpdateSystem:onAddEntity(entity)
 	local hc = entity:get("HoverableComponent")
+
     if not self.layers[hc.layer] then
     	for i=#self.layers + 1, hc.layer do
     		self.layers[i] = {}
@@ -58,11 +59,13 @@ function HoverUpdateSystem:update(dt)
 				if not hc.hovered then
 					hc.enterCallback()
 					hc.hovered = true
+                    entity.eventManager:fireEvent(HooI.events.HoverEvent(entity, true))
 				end
 			else
 				if hc.hovered then
 					hc.hovered = false
 					hc.leaveCallback()
+                    entity.eventManager:fireEvent(HooI.events.HoverEvent(entity, false))
 				end
 			end
     	end

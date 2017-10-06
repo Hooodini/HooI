@@ -1,4 +1,4 @@
-local MouseReleased = class("MouseReleased")
+local MouseReleased = HooI.class("MouseReleased")
 
 function MouseReleased:initialize(x, y, button)
     self.button = button

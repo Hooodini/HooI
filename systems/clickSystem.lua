@@ -6,6 +6,7 @@ function ClickSystem:initialize(canvas)
 
 	canvas.eventManager:addListener("MousePressed", self, self.mouseEvent)
 	canvas.eventManager:addListener("MouseReleased", self, self.mouseEvent)
+    print(canvas)
 end
 
 function ClickSystem:onAddEntity(entity)
@@ -15,7 +16,7 @@ function ClickSystem:onAddEntity(entity)
     		self.layers[i] = {}
     	end
     end
-    table.insert(self.layers[hc.layer], entity)
+    table.insert(self.layers[cc.layer], entity)
 end
 
 function ClickSystem:onRemoveEntity(entity)
@@ -34,7 +35,7 @@ function ClickSystem:mouseEvent(event)
     	for _, entity in pairs(self.layers[i]) do
     		wc = entity:get("WidgetComponent")
     		cc = entity:get("ClickableComponent")
-    		
+
     		x = wc.x
     		if cc.x then
     			x = x + cc.x
@@ -53,12 +54,14 @@ function ClickSystem:mouseEvent(event)
     		end
 
     		if x < event.x and x + w > event.x and y < event.y and y + h > event.y then
-    			if event.name == "MousePressed" then
-    				entity:get("ClickableComponent").pressed = true
+    			if event.class.name == "MousePressed" then
+    				cc.pressed = true
+                    entity.eventManager:fireEvent(HooI.events.ClickEvent(event.button, true))
     				return true
-    			elseif event.name == "MouseReleased" then
+    			elseif event.class.name == "MouseReleased" then
     				if cc.pressed then
     					cc.clickCallback()
+                        entity.eventManager:fireEvent(HooI.events.ClickEvent(event.button, false))
     				end
     				return true
     			end
@@ -68,7 +71,7 @@ function ClickSystem:mouseEvent(event)
 end	
 
 function ClickSystem:requires()
-    return {"WidgetComponent", "ClickalbeComponent"}
+    return {"WidgetComponent", "ClickableComponent"}
 end
 
-function ClickSystem
+return ClickSystem

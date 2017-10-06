@@ -15,6 +15,27 @@ HooI.engine = lovetoys.Engine
 HooI.class = lovetoys.class
 HooI.eventManager = lovetoys.EventManager
 
+-- Setup Systems
+HooI.systems = {} 
+HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
+HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
+HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
+HooI.systems.TooltipSystem = require(folderPath .. "systems.tooltipSystem")
+
+-- Init Components
+local widgetComponent = require(folderPath .. "components.widgetComponent")
+HooI.hoverable = require(folderPath .. "components.hoverable")
+HooI.clickable = require(folderPath .. "components.clickable")
+HooI.drawable = require(folderPath .. "components.drawable")
+HooI.tooltip = require(folderPath .. "components.tooltipComponent")
+
+-- Init Events
+HooI.events = {}
+HooI.events.MousePressedEvent = require(folderPath .. "events.MousePressedEvent")
+HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEvent")
+HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")
+HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")
+
 -- Util function for component variable initialization. Ugly but the resulting component creation and custom component writing is amazing!
 HooI.initComponent = function(component, entries, ...)
 	args = {...}
@@ -75,27 +96,6 @@ HooI.initComponent = function(component, entries, ...)
 	end
 end
 
--- Setup Systems
-HooI.systems = {} 
-HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
-HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
-HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
-
--- Init Components
-local widgetComponent = require(folderPath .. "components.widgetComponent")
-HooI.hoverable = require(folderPath .. "components.hoverable")
-HooI.clickable = require(folderPath .. "components.clickable")
-HooI.drawable = require(folderPath .. "components.drawable")
-
--- Init Events
-
-HooI.events.MousePressed = require(folderPath .. "events.MousePressed")
-HooI.events.MouseReleased = require(folderPath .. "events.MouseReleased")
-
--- Canvas setup
-HooI.canvases = {};
-HooI.activeCanvases = {};
-
 -- HooI interface
 function HooI:update(dt)
 	for _, canvas in ipairs(self.activeCanvases) do
@@ -110,22 +110,16 @@ function HooI:draw()
 end
 
 -- Return after the first widget used this event.
-function HooI:mousePressed(button, x, y)
+function HooI:mousePressed(x, y, button)
 	for i = #self.activeCanvases, 1, -1 do
-		local val = self.activeCanvases[i]:mousePressed(x, y, button)
-		if val then
-			return val
-		end
+		return self.activeCanvases[i]:mousePressed(x, y, button)
 	end
 end
 
 -- Return after the first widget used this event.
-function HooI:mouseReleased(button, x, y)
+function HooI:mouseReleased(x, y, button)
 	for i = #self.activeCanvases, 1, -1 do
-		local val = self.activeCanvases[i]:mouseReleased(x, y, button)
-		if val then
-			return val
-		end
+		return self.activeCanvases[i]:mouseReleased(x, y, button)
 	end
 end
 
@@ -141,12 +135,16 @@ function HooI:addSystem(newSystem)
 				if not self.systems[newSystem.name] then
 					self.systems[newSystem.name] = newSystem
 				else
-					print("Attempting to add a system that already exists (or has the same name as an existing system)")
+					print("Attempting to add system with the same name as an existing system. Ignoring the addition.")
 				end
 			end
 		end
 	end
 end
+
+-- Canvas setup
+HooI.canvases = {};
+HooI.activeCanvases = {};
 
 function HooI:activateCanvas(canvas)
 	if not canvas.class.name == "Canvas" then
@@ -213,6 +211,12 @@ end
 function HooI:newWidget(x, y, w, h)
 	local entity = HooI.entity()
 	entity:add(widgetComponent(x, y, w, h))
+	return entity
+end
+
+function HooI:newTooltip(w, h)
+	local entity = HooI.entity()
+	entity:add(widgetComponent(0, 0, w, h))
 	return entity
 end
 

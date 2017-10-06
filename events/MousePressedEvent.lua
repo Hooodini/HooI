@@ -1,4 +1,4 @@
-local MousePressed = class("MousePressed")
+local MousePressed = HooI.class("MousePressed")
 
 function MousePressed:initialize(x, y, button)
     self.button = button
