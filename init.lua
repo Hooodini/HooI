@@ -1,6 +1,6 @@
 folderPath = ... .. "."
 
-local lovetoys = require (folderPath .. "lib.HooECS.lovetoys")
+local lovetoys = require (folderPath .. "lib.HooECS")
 lovetoys.initialize({
 	globals = false,
 	debug = true
@@ -21,6 +21,8 @@ HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem"
 HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
 HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
 HooI.systems.TooltipSystem = require(folderPath .. "systems.tooltipSystem")
+HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.drawableDrawSystem")
+HooI.systems.ButtonVisualsSystem = require(folderPath .. "systems.buttonVisualsSystem")
 
 -- Init Components
 local widgetComponent = require(folderPath .. "components.widgetComponent")
@@ -28,6 +30,7 @@ HooI.hoverable = require(folderPath .. "components.hoverable")
 HooI.clickable = require(folderPath .. "components.clickable")
 HooI.drawable = require(folderPath .. "components.drawable")
 HooI.tooltip = require(folderPath .. "components.tooltipComponent")
+HooI.buttonVisuals = require(folderPath .. "components.buttonVisuals")
 
 -- Init Events
 HooI.events = {}
@@ -35,8 +38,17 @@ HooI.events.MousePressedEvent = require(folderPath .. "events.MousePressedEvent"
 HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEvent")
 HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")
 HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")
+-- Returns either middleclass name or generic type.
+HooI.utils.type = function(object)
+	if object.class then
+		return object.class.name
+	else
+		return type(object)
+	end
+end
 
 -- Util function for component variable initialization. Ugly but the resulting component creation and custom component writing is amazing!
+-- Also holy shit this is one long ass function :'D
 HooI.initComponent = function(component, entries, ...)
 	args = {...}
 	-- If there are any args
@@ -49,12 +61,22 @@ HooI.initComponent = function(component, entries, ...)
 		if #args > 1 or type(args[1]) ~= "table" or listOfInts then
 
 			-- args is a list of integers
-			for k, v in pairs(entries) do
+			for k, v in ipairs(entries) do
 				if args[k] then
-					if type(args[k]) == v["varType"] then
-						component[v["name"]] = args[k]
+					if type(v["varType"]) == "table" then
+						for _, varType in ipairs(v["varType"]) do
+							if type(args[k]) == varType or HooI.utils.type(args[k]) == varType then
+								component[v["name"]] = args[k]
+							else
+								error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+							end
+						end
 					else
-						error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+						if type(args[k]) == v["varType"] or HooI.utils.type(args[k]) == v["varType"] then
+							component[v["name"]] = args[k]
+						else
+							error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+						end
 					end
 				else
 					if v["default"] then
@@ -72,12 +94,22 @@ HooI.initComponent = function(component, entries, ...)
 			end
 			args = args[1]
 			-- args is a list of strings
-			for k, v in pairs(entries) do
+			for k, v in ipairs(entries) do
 				if args[v["name"]] then
-					if type(args[v["name"]]) == v["varType"] then
-						component[v["name"]] = args[v["name"]]
+					if type(v["varType"]) == "table" then
+						for _, varType in ipairs(v["varType"]) do
+							if type(args[k]) == varType or HooI.utils.type(args[k]) == varType then
+								component[v["name"]] = args[k]
+							else
+								error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+							end
+						end
 					else
-						error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+						if type(args[k]) == v["varType"] or HooI.utils.type(args[k]) == v["varType"] then
+							component[v["name"]] = args[k]
+						else
+							error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
+						end
 					end
 				else
 					if v["default"] then
@@ -88,7 +120,7 @@ HooI.initComponent = function(component, entries, ...)
 		end	
 	else
 		-- If no args were passed, initialize with default values.
-		for _, entry in pairs(entries) do
+		for _, entry in ipairs(entries) do
 			if entry["default"] then
 				component[entry["name"]] = entry["default"]
 			end
@@ -218,6 +250,13 @@ function HooI:newTooltip(w, h)
 	local entity = HooI.entity()
 	entity:add(widgetComponent(0, 0, w, h))
 	return entity
+end
+
+function HooI:newAnimation(image, quads)
+	local animation = HooI.class("Animation")
+	animation.image = image
+	animation.quads = quads
+	return animation
 end
 
 -- Keep HooI global for initialization

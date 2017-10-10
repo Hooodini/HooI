@@ -10,7 +10,7 @@ function ClickableComponent:initialize(...)
 		{name = "h", varType = "number"},
 	}, ...)
 
-	pressed = false
+	self.pressed = false
 end
 
 return ClickableComponent
