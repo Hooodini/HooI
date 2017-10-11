@@ -1,7 +1,7 @@
 local ButtonDrawSystem = HooI.class("ButtonDrawSystem", HooI.system)
 
 function ButtonDrawSystem:initialize(canvas)
-	self.class.super:initialize()
+	self.class.super.initialize(self)
 	
 	canvas.eventManager:addListener("HoverEvent", self, self.hoverEvent)
 	canvas.eventManager:addListener("ClickEvent", self, self.clickEvent)
@@ -17,27 +17,25 @@ function ButtonDrawSystem:onAddEntity(entity)
 end
 
 function ButtonDrawSystem:hoverEvent(event)
-	dc = event.entity:get("DrawableComponent")
-	bvc = event.entity:get("ButtonVisualsComponent")
+	bc = event.entity:get("ButtonComponent")
 	if event.isHovered then
-		dc.drawable = bvc.hover
+		bc.current = bc.hoverDrawable
 	else
-		dc.drawable = bvc.normal
+		bc.current = bc.normalDrawable
 	end
 end
 
 function ButtonDrawSystem:clickEvent(event)
-	local hc, dc, bvc
+	local hc, dc, bc
 	for _, entity in pairs(self.targets) do
 		hc = entity:get("HoverableComponent")
-		dc = entity:get("DrawableComponent")
-		bvc = entity:get("ButtonVisualsComponent")
+		bc = entity:get("ButtonComponent")
 		if hc.hovered then
-			if bvc.button == event.button then
+			if bc.button == event.button then
 				if event.isPressed then
-					dc.drawable = bvc.click
+					bc.current = bc.clickDrawable
 				else
-					dc.drawable = bvc.hover
+					bc.current = bc.hoverDrawable
 				end
 			end
 		end
@@ -52,14 +50,14 @@ function ButtonDrawSystem:draw()
 
 		if not bc.sx then
 			w = wc.w
-			bc.sx = w / bc.drawable:getWidth()
+			bc.sx = w / bc.current:getWidth()
 		end
 		if not bc.sy then
 			h = wc.h
-			bc.sy = h / bc.drawable:getHeight()
+			bc.sy = h / bc.current:getHeight()
 		end
 
-		love.graphics.draw(bc.drawable, wc.x, wc.y, 0, bc.sx, bc.sy)
+		love.graphics.draw(bc.current, wc.x, wc.y, 0, bc.sx, bc.sy)
     end
 end
 

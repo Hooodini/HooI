@@ -1,7 +1,7 @@
 local HoverUpdateSystem = HooI.class("HoverUpdateSystem", HooI.system)
 
 function HoverUpdateSystem:initialize(canvas)
-	self.class.super:initialize()
+	self.class.super.initialize(self)
 	self.layers = {}
 end
 

@@ -9,6 +9,7 @@ function HoverableComponent:initialize(...)
 		{name = "y", varType = "number"},
 		{name = "w", varType = "number"},
 		{name = "h", varType = "number"},
+		{name = "cursor", varType = "Cursor", default = love.mouse.getSystemCursor("hand")}
 	}, ...)
 
 	self.hovered = false

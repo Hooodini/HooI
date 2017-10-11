@@ -22,7 +22,7 @@ HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSyste
 HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
 HooI.systems.TooltipSystem = require(folderPath .. "systems.tooltipSystem")
 HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.drawableDrawSystem")
-HooI.systems.ButtonVisualsSystem = require(folderPath .. "systems.buttonVisualsSystem")
+HooI.systems.ButtonDrawSystem = require(folderPath .. "systems.buttonVisualsSystem")
 
 -- Init Components
 local widgetComponent = require(folderPath .. "components.widgetComponent")
@@ -39,17 +39,71 @@ HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEven
 HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")
 HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")
 -- Returns either middleclass name or generic type.
+HooI.utils = {}
 HooI.utils.type = function(object)
-	if object.class then
-		return object.class.name
+	if type(object) == "table" then
+		if object.class then
+			return object.class.name
+		else
+			return type(object)
+		end
 	else
 		return type(object)
 	end
 end
 
+-- Prepares table compatible with middleclass
+-- Implements the __call metamethod only for callbacks for conveninet callback functions that aren't directly to a function
+HooI.utils.callbackMetatable = {}
+HooI.utils.callbackMetatable.__call = function(t, ...) t.table[t.func](t.table, ...) end
+
 -- Util function for component variable initialization. Ugly but the resulting component creation and custom component writing is amazing!
 -- Also holy shit this is one long ass function :'D
 HooI.initComponent = function(component, entries, ...)
+	local addVariable = function(component, entry, var)
+		if type(entry["varType"]) == "table" then
+			local valid = false
+			for _, varType in ipairs(entry["varType"]) do
+				local loveType
+				if type(var) == "userdata" then
+					loveType = var:type()
+				end
+				if type(var) == varType or HooI.utils.type(var) == varType or loveType == varType then
+					component[entry["name"]] = var
+					valid = true
+				end
+			end
+			if not valid then
+				varTypeString = ""
+				for _, varType in ipairs(entry["varType"]) do
+					varTypeString = varTypeString .. " " .. varType
+				end
+				expectedType = HooI.utils.type(var)
+				if type(var) == "userdata" then
+					expectedType = var:type()
+				end
+				error(component.class.name .. " initialization error. \"" .. entry["name"] .. "\" received wrong variable. \"" .. varTypeString .. " \" expected. Got \"" .. expectedType .. "\"") --, 4)
+			end
+		else
+			local loveType
+			if type(var) == "table" then
+				if var.type then
+					loveType = var:type()
+				end
+			end
+			if type(var) == varType or HooI.utils.type(var) == varType or loveType == varType then
+				component[entry["name"]] = var
+				valid = true
+			else
+				expectedType = HooI.utils.type(var)
+				if type(var) == "userdata" then
+					expectedType = var:type()
+				end
+				error(component.class.name .. " initialization error. \"" .. entry["name"] .. "\" received wrong variable. \"" .. type(entry["varType"]) .. " \" expected. Got \"" .. expectedType .. "\"") --, 4)	
+			end
+		end
+	end
+
 	args = {...}
 	-- If there are any args
 	if args[1] then
@@ -63,21 +117,7 @@ HooI.initComponent = function(component, entries, ...)
 			-- args is a list of integers
 			for k, v in ipairs(entries) do
 				if args[k] then
-					if type(v["varType"]) == "table" then
-						for _, varType in ipairs(v["varType"]) do
-							if type(args[k]) == varType or HooI.utils.type(args[k]) == varType then
-								component[v["name"]] = args[k]
-							else
-								error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
-							end
-						end
-					else
-						if type(args[k]) == v["varType"] or HooI.utils.type(args[k]) == v["varType"] then
-							component[v["name"]] = args[k]
-						else
-							error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
-						end
-					end
+					addVariable(component, v, args[k])
 				else
 					if v["default"] then
 						component[v["name"]] = v["default"]
@@ -96,21 +136,7 @@ HooI.initComponent = function(component, entries, ...)
 			-- args is a list of strings
 			for k, v in ipairs(entries) do
 				if args[v["name"]] then
-					if type(v["varType"]) == "table" then
-						for _, varType in ipairs(v["varType"]) do
-							if type(args[k]) == varType or HooI.utils.type(args[k]) == varType then
-								component[v["name"]] = args[k]
-							else
-								error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
-							end
-						end
-					else
-						if type(args[k]) == v["varType"] or HooI.utils.type(args[k]) == v["varType"] then
-							component[v["name"]] = args[k]
-						else
-							error(component.class.name .. " initialization error. \"" .. v["name"] .. "\" received wrong variable. \"" .. v["varType"] .. "\" expected. Got \"" .. type(args[k]) .. "\"", 4)
-						end
-					end
+					addVariable(component, v, args[k])
 				else
 					if v["default"] then
 						component[v["name"]] = v["default"]
@@ -257,6 +283,19 @@ function HooI:newAnimation(image, quads)
 	animation.image = image
 	animation.quads = quads
 	return animation
+end
+
+function HooI:newCallback(table, func)
+	if type(table) == "table" and type(func) == "function" then
+		local callback = HooI.class("Callback")
+		setmetatable(callback, HooI.utils.callbackMetatable)
+		callback.table = table
+		callback.func = func
+
+		return callback
+	else 
+		error("Trying to create callback table without invalid parameters. Should be table, function. Is " .. type(table) .. ", " .. type(func))
+	end
 end
 
 -- Keep HooI global for initialization

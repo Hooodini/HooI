@@ -13,7 +13,6 @@ function Canvas:initialize(canvasName, active, systems)
 	if type(systems) == "table" then
 		for _, v in pairs(systems) do
 			if HooI.systems[v] then
-				--print(HooI.systems[v])
 				self:addSystem(HooI.systems[v])
 			end
 		end

@@ -1,12 +1,11 @@
 local ClickSystem = HooI.class("ClickSystem", HooI.system)
 
 function ClickSystem:initialize(canvas)
-	self.class.super:initialize()
+	self.class.super.initialize(self)
 	self.layers = {}
 
 	canvas.eventManager:addListener("MousePressed", self, self.mouseEvent)
 	canvas.eventManager:addListener("MouseReleased", self, self.mouseEvent)
-    print(canvas)
 end
 
 function ClickSystem:onAddEntity(entity)

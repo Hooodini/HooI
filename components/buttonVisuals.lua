@@ -2,11 +2,13 @@ local ButtonComponent = HooI.component.create("ButtonComponent")
 
 function ButtonComponent:initialize(...)
 	HooI.initComponent(self, {
-		{name = "normalDrawable", varType = {"userdata", "Animation"} }, 
-		{name = "hoverDrawable", varType = {"userdata", "Animation"} }, 
-		{name = "clickDrawable", varType = {"userdata", "Animation"} }, 
+		{name = "normalDrawable", varType = {"Image", "Animation"} }, 
+		{name = "hoverDrawable", varType = {"Image", "Animation"} }, 
+		{name = "clickDrawable", varType = {"Image", "Animation"} }, 
 		{name = "button", varType = "number", default = 1}
 	}, ...)
+
+	self.current = self.normalDrawable
 
 	-- Will be added by the drawSystem
 	self.sx = nil

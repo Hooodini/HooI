@@ -2,7 +2,7 @@ local DrawableComponent = HooI.component.create("DrawableComponent")
 
 function DrawableComponent:initialize(...)
 	HooI.initComponent(self, {
-		{name = "drawable", varType = {"userdata", "Animation"} }, 
+		{name = "drawable", varType = {"Image", "Animation"} }, 
 		{name = "layer", varType = "number"},
 		{name = "x", varType = "number"},
 		{name = "y", varType = "number"},
