@@ -1,36 +1,38 @@
 folderPath = ... .. "."
 
-local lovetoys = require (folderPath .. "lib.HooECS")
-lovetoys.initialize({
+local HooECS = require (folderPath .. "lib.HooECS")
+HooECS.initialize({
 	globals = false,
 	debug = true
 	})
 
--- Setup Lovetoys stuff
+-- Setup HooECS stuff
 HooI = {}
-HooI.entity = lovetoys.Entity
-HooI.component = lovetoys.Component
-HooI.system = lovetoys.System
-HooI.engine = lovetoys.Engine
-HooI.class = lovetoys.class
-HooI.eventManager = lovetoys.EventManager
+HooI.entity = HooECS.Entity
+HooI.component = HooECS.Component
+HooI.system = HooECS.System
+HooI.engine = HooECS.Engine
+HooI.class = HooECS.class
+HooI.eventManager = HooECS.EventManager
 
 -- Setup Systems
 HooI.systems = {} 
-HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.widgetDrawSystem")
-HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.hoverUpdateSystem")
-HooI.systems.ClickSystem = require(folderPath .. "systems.clickSystem")
-HooI.systems.TooltipSystem = require(folderPath .. "systems.tooltipSystem")
-HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.drawableDrawSystem")
-HooI.systems.ButtonDrawSystem = require(folderPath .. "systems.buttonVisualsSystem")
+HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.WidgetDrawSystem")
+HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.HoverUpdateSystem")
+HooI.systems.ClickSystem = require(folderPath .. "systems.ClickSystem")
+HooI.systems.TooltipSystem = require(folderPath .. "systems.TooltipSystem")
+HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.DrawableDrawSystem")
+HooI.systems.ButtonSystem = require(folderPath .. "systems.ButtonSystem")
+HooI.systems.SelectableSystem = require(folderPath .. "systems.SelectableSystem")
 
 -- Init Components
-local widgetComponent = require(folderPath .. "components.widgetComponent")
-HooI.hoverable = require(folderPath .. "components.hoverable")
-HooI.clickable = require(folderPath .. "components.clickable")
-HooI.drawable = require(folderPath .. "components.drawable")
-HooI.tooltip = require(folderPath .. "components.tooltipComponent")
-HooI.buttonVisuals = require(folderPath .. "components.buttonVisuals")
+local widgetComponent = require(folderPath .. "components.WidgetComponent")
+HooI.hoverable = require(folderPath .. "components.HoverableComponent")
+HooI.clickable = require(folderPath .. "components.ClickableComponent")
+HooI.drawable = require(folderPath .. "components.DrawableComponent")
+HooI.tooltip = require(folderPath .. "components.TooltipComponent")
+HooI.buttonVisuals = require(folderPath .. "components.ButtonComponent")
+HooI.selectable = require(folderPath .. "components.SelectableComponent")
 
 -- Init Events
 HooI.events = {}
@@ -38,6 +40,9 @@ HooI.events.MousePressedEvent = require(folderPath .. "events.MousePressedEvent"
 HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEvent")
 HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")
 HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")
+HooI.events.SelectionEvent = require(folderPath .. "events.SelectionEvent")
+HooI.events.KeyInputEvent = require(folderPath .. "events.KeyInputEvent")
+
 -- Returns either middleclass name or generic type.
 HooI.utils = {}
 HooI.utils.type = function(object)
@@ -186,6 +191,20 @@ end
 HooI.mousepressed = HooI.mousePressed
 HooI.mousereleased = HooI.mouseReleased
 
+--[[ Intended input types:
+	up
+	down
+	left
+	right
+	press
+	execute
+	Returns after the first canvas used this event ]]
+function HooI:keyInput(inputType)
+	for i = #self.activeCanvases, 1, -1 do
+		return self.activeCanvases[i]:keyInput(inputType)
+	end
+end
+
 function HooI:addSystem(newSystem)
 	if newSystem.super then
 		if newSystem.super.name then
@@ -278,10 +297,12 @@ function HooI:newTooltip(w, h)
 	return entity
 end
 
-function HooI:newAnimation(image, quads)
+function HooI:newAnimation(image, quads, duration)
 	local animation = HooI.class("Animation")
 	animation.image = image
 	animation.quads = quads
+	animation.duration = duration or 1
+	animation.currentTime = 0
 	return animation
 end
 

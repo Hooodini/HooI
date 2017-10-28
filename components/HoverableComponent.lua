@@ -5,10 +5,10 @@ function HoverableComponent:initialize(...)
 		{name = "enterCallback", varType = "function", default = function() end}, 
 		{name = "leaveCallback", varType = "function", default = function() end},
 		{name = "layer", varType = "number", default = 1},
-		{name = "x", varType = "number"},
-		{name = "y", varType = "number"},
-		{name = "w", varType = "number"},
-		{name = "h", varType = "number"},
+		{name = "x", varType = "number", default = 0},
+		{name = "y", varType = "number", default = 0},
+		{name = "w", varType = "number", default = 0},
+		{name = "h", varType = "number", default = 0},
 		{name = "cursor", varType = "Cursor", default = love.mouse.getSystemCursor("hand")}
 	}, ...)
 

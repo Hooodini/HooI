@@ -3,6 +3,7 @@ local HoverUpdateSystem = HooI.class("HoverUpdateSystem", HooI.system)
 function HoverUpdateSystem:initialize(canvas)
 	self.class.super.initialize(self)
 	self.layers = {}
+    self.canvas = canvas
 end
 
 function HoverUpdateSystem:onAddEntity(entity)
@@ -38,36 +39,24 @@ function HoverUpdateSystem:update(dt)
     		wc = entity:get("WidgetComponent")
     		hc = entity:get("HoverableComponent")
 
-    		x = wc.x
-    		if hc.x then
-    			x = x + hc.x
-    		end
-    		y = wc.y
-    		if hc.y then
-    			y = y + hc.y
-    		end
-    		w = wc.w
-    		if hc.w then
-    			w = w + hc.w
-    		end
-    		h = wc.h
-    		if hc.h then
-    			h = h + hc.h
-    		end
+    		x = wc.x + hc.x
+    		y = wc.y + hc.y
+            w = wc.w + hc.w
+    		h = wc.h + hc.h
 
-			if mx > x and mx < x + w and my > y and my < y + h then
-				if not hc.hovered then
-					hc.enterCallback()
-					hc.hovered = true
+    		if mx > x and mx < x + w and my > y and my < y + h then
+    			if not hc.hovered then
+    				hc.hovered = true
                     entity.eventManager:fireEvent(HooI.events.HoverEvent(entity, true))
-				end
-			else
-				if hc.hovered then
-					hc.hovered = false
-					hc.leaveCallback()
-                    entity.eventManager:fireEvent(HooI.events.HoverEvent(entity, false))
-				end
-			end
+    			end
+    		else
+                if self.canvas.mode == "mouse" then
+                    if hc.hovered then
+    				    hc.hovered = false
+                        entity.eventManager:fireEvent(HooI.events.HoverEvent(entity, false))
+                    end
+    			end
+    		end
     	end
     end
 end

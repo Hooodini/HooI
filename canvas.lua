@@ -1,6 +1,6 @@
 local Canvas = HooI.class("Canvas")
 
-function Canvas:initialize(canvasName, active, systems)
+function Canvas:initialize(canvasName, active, systems, inputMode)
 	self.canvasName = canvasName or "GenericCanvas"
 	self.engine = HooI.engine()
 	self.eventManager = self.engine.eventManager
@@ -9,6 +9,7 @@ function Canvas:initialize(canvasName, active, systems)
 
 	self.widgets = {}
 	self.active = active or true
+	self.mode = inputMode or "mouse"
 
 	if type(systems) == "table" then
 		for _, v in pairs(systems) do
@@ -33,6 +34,10 @@ end
 
 function Canvas:mouseReleased(x, y, button)
 	return self.eventManager:fireEvent(HooI.events.MouseReleasedEvent(x, y, button))
+end
+
+function Canvas:keyInput(inputType)
+	return self.eventManager:fireEvent(HooI.events.KeyInputEvent(inputType))
 end
 
 function Canvas:add(newWidget)
@@ -84,6 +89,15 @@ function Canvas:deactivateWidget(widget)
 	-- ToDo Check widget type
 	widget:get("WidgetComponent").active = false
 	self.eventManager:fireEvent(ActivationEvent(widget, false))
+end
+
+function Canvas:setMode(mode)
+	if mode then
+		if mode == "mouse" or mode == "input" then
+			self.mode = mode
+			self.eventManager:fireEvent(CanvasModeEvent(mode))
+		end
+	end
 end
 
 return Canvas

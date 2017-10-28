@@ -1,6 +1,7 @@
 local ClickEvent = HooI.class("ClickEvent")
 
-function ClickEvent:initialize(button, isPressed)
+function ClickEvent:initialize(entity, button, isPressed)
+	self.entity = entity
     self.button = button
     self.isPressed = isPressed
 end
