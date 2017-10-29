@@ -1,14 +1,19 @@
-local WidgetDrawSystem = HooI.class("WidgetDrawSystem", HooI.system)
+local HooI
 
-function WidgetDrawSystem:draw()
-    for k, entity in pairs(self.targets) do
-        local wc = entity:get("WidgetComponent")
-        love.graphics.rectangle("fill", wc.x, wc.y, wc.w, wc.h)
-    end
+return function(lib)
+	HooI = lib
+	local WidgetDrawSystem = HooI.class("WidgetDrawSystem", HooI.system)
+
+	function WidgetDrawSystem:draw()
+	    for k, entity in pairs(self.targets) do
+	        local wc = entity:get("WidgetComponent")
+	        love.graphics.rectangle("fill", wc.x, wc.y, wc.w, wc.h)
+	    end
+	end
+
+	function WidgetDrawSystem:requires()
+	    return {"WidgetComponent"}
+	end
+
+	return WidgetDrawSystem
 end
-
-function WidgetDrawSystem:requires()
-    return {"WidgetComponent"}
-end
-
-return WidgetDrawSystem

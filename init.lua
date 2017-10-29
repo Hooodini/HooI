@@ -7,7 +7,7 @@ HooECS.initialize({
 	})
 
 -- Setup HooECS stuff
-HooI = {}
+local HooI = {}
 HooI.entity = HooECS.Entity
 HooI.component = HooECS.Component
 HooI.system = HooECS.System
@@ -17,31 +17,31 @@ HooI.eventManager = HooECS.EventManager
 
 -- Setup Systems
 HooI.systems = {} 
-HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.WidgetDrawSystem")
-HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.HoverUpdateSystem")
-HooI.systems.ClickSystem = require(folderPath .. "systems.ClickSystem")
-HooI.systems.TooltipSystem = require(folderPath .. "systems.TooltipSystem")
-HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.DrawableDrawSystem")
-HooI.systems.ButtonSystem = require(folderPath .. "systems.ButtonSystem")
-HooI.systems.SelectableSystem = require(folderPath .. "systems.SelectableSystem")
+HooI.systems.WidgetDrawSystem = require(folderPath .. "systems.WidgetDrawSystem")(HooI)
+HooI.systems.HoverUpdateSystem = require(folderPath .. "systems.HoverUpdateSystem")(HooI)
+HooI.systems.ClickSystem = require(folderPath .. "systems.ClickSystem")(HooI)
+HooI.systems.TooltipSystem = require(folderPath .. "systems.TooltipSystem")(HooI)
+HooI.systems.DrawableDrawSystem = require(folderPath .. "systems.DrawableDrawSystem")(HooI)
+HooI.systems.ButtonSystem = require(folderPath .. "systems.ButtonSystem")(HooI)
+HooI.systems.SelectableSystem = require(folderPath .. "systems.SelectableSystem")(HooI)
 
 -- Init Components
-local widgetComponent = require(folderPath .. "components.WidgetComponent")
-HooI.hoverable = require(folderPath .. "components.HoverableComponent")
-HooI.clickable = require(folderPath .. "components.ClickableComponent")
-HooI.drawable = require(folderPath .. "components.DrawableComponent")
-HooI.tooltip = require(folderPath .. "components.TooltipComponent")
-HooI.buttonVisuals = require(folderPath .. "components.ButtonComponent")
-HooI.selectable = require(folderPath .. "components.SelectableComponent")
+local widgetComponent = require(folderPath .. "components.WidgetComponent")(HooI)
+HooI.hoverable = require(folderPath .. "components.HoverableComponent")(HooI)
+HooI.clickable = require(folderPath .. "components.ClickableComponent")(HooI)
+HooI.drawable = require(folderPath .. "components.DrawableComponent")(HooI)
+HooI.tooltip = require(folderPath .. "components.TooltipComponent")(HooI)
+HooI.button = require(folderPath .. "components.ButtonComponent")(HooI)
+HooI.selectable = require(folderPath .. "components.SelectableComponent")(HooI)
 
 -- Init Events
 HooI.events = {}
-HooI.events.MousePressedEvent = require(folderPath .. "events.MousePressedEvent")
-HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEvent")
-HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")
-HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")
-HooI.events.SelectionEvent = require(folderPath .. "events.SelectionEvent")
-HooI.events.KeyInputEvent = require(folderPath .. "events.KeyInputEvent")
+HooI.events.MousePressedEvent = require(folderPath .. "events.MousePressedEvent")(HooI)
+HooI.events.MouseReleasedEvent = require(folderPath .. "events.MouseReleasedEvent")(HooI)
+HooI.events.HoverEvent = require(folderPath .. "events.HoverEvent")(HooI)
+HooI.events.ClickEvent = require(folderPath .. "events.ClickEvent")(HooI)
+HooI.events.SelectionEvent = require(folderPath .. "events.SelectionEvent")(HooI)
+HooI.events.KeyInputEvent = require(folderPath .. "events.KeyInputEvent")(HooI)
 
 -- Returns either middleclass name or generic type.
 HooI.utils = {}
@@ -56,6 +56,8 @@ HooI.utils.type = function(object)
 		return type(object)
 	end
 end
+
+HooI.canvas = require(folderPath .. "canvas")(HooI);
 
 -- Prepares table compatible with middleclass
 -- Implements the __call metamethod only for callbacks for conveninet callback functions that aren't directly to a function
@@ -230,16 +232,19 @@ function HooI:activateCanvas(canvas)
 	end
 
 	-- Don't add the same canvas multiple times
-	for _, c in pairs(self.canvases) do
+	for _, c in pairs(self.activeCanvases) do
 		if c == canvas then
 			return
 		end
 	end
 
-	table.insert(self.activeCanvases, canvas)
-	canvas.active = true
-
-	return true
+	for _, c in pairs(self.canvases) do
+		if c == canvas then
+			table.insert(self.activeCanvases, canvas)
+			canvas.active = true
+			return true
+		end
+	end
 end
 
 function HooI:deactivateCanvas(canvas)
@@ -272,8 +277,6 @@ function HooI:deactivateCanvasByName(name)
 		end
 	end
 end
-
-HooI.canvas = require(folderPath .. "canvas");
 
 function HooI:newCanvas(name, active, systems)
 	local canvas = HooI.canvas(name, active, systems)
@@ -315,13 +318,11 @@ function HooI:newCallback(table, func)
 
 		return callback
 	else 
-		error("Trying to create callback table without invalid parameters. Should be table, function. Is " .. type(table) .. ", " .. type(func))
+		error("Trying to create callback table invalid parameters. Should be table, function. Is " .. type(table) .. ", " .. type(func))
 	end
 end
 
 -- Keep HooI global for initialization
 -- But remove from global scope afterwards
-local h = HooI
-HooI = nil
 
-return h
+return HooI

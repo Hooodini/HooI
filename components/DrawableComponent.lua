@@ -1,17 +1,22 @@
-local DrawableComponent = HooI.component.create("DrawableComponent")
+local HooI
 
-function DrawableComponent:initialize(...)
-	HooI.initComponent(self, {
-		{name = "drawable", varType = {"Image", "Animation"} }, 
-		{name = "layer", varType = "number"},
-		{name = "x", varType = "number"},
-		{name = "y", varType = "number"},
-		{name = "w", varType = "number"},
-		{name = "h", varType = "number"},
-	}, ...)
+return function(lib)
+    HooI = lib
+    local DrawableComponent = HooI.component.create("DrawableComponent")
 
-	self.sx = nil
-	self.sy = nil
+	function DrawableComponent:initialize(...)
+		HooI.initComponent(self, {
+			{name = "drawable", varType = {"Image", "Animation"} }, 
+			{name = "layer", varType = "number"},
+			{name = "x", varType = "number"},
+			{name = "y", varType = "number"},
+			{name = "w", varType = "number"},
+			{name = "h", varType = "number"},
+		}, ...)
+
+		self.sx = nil
+		self.sy = nil
+	end
+
+	return DrawableComponent
 end
-
-return DrawableComponent

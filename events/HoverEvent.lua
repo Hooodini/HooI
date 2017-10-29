@@ -1,8 +1,10 @@
-local HoverEvent = HooI.class("HoverEvent")
+return function(HooI)
+    local HoverEvent = HooI.class("HoverEvent")
 
-function HoverEvent:initialize(entity, isHovered)
-	self.entity = entity
-    self.isHovered = isHovered
+    function HoverEvent:initialize(entity, isHovered)
+    	self.entity = entity
+        self.isHovered = isHovered
+    end
+
+    return HoverEvent
 end
-
-return HoverEvent
