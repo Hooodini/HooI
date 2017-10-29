@@ -225,7 +225,7 @@ end
 HooI.canvases = {};
 HooI.activeCanvases = {};
 
-function HooI:activateCanvas(canvas)
+function HooI:activateCanvas(canvas, index)
 	if not canvas.class.name == "Canvas" then
 		print("HooI:activate canvas error: Provided canvas is not of class \"Canvas\"!")
 		return
@@ -240,7 +240,11 @@ function HooI:activateCanvas(canvas)
 
 	for _, c in pairs(self.canvases) do
 		if c == canvas then
-			table.insert(self.activeCanvases, canvas)
+			if type(index) == "number" then
+				table.insert(self.activeCanvases, index, canvas)
+			else
+				table.insert(self.activeCanvases, canvas)
+			end
 			canvas.active = true
 			return true
 		end

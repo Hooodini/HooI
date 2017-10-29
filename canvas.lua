@@ -75,8 +75,8 @@ return function(lib)
 	end
 
 	-- self.active will be updated by activateCanvas / deactivateCanvas
-	function Canvas:activate()
-		HooI:activateCanvas(self)
+	function Canvas:activate(index)
+		HooI:activateCanvas(self, index)
 	end
 
 	function Canvas:deactivate()
@@ -93,15 +93,6 @@ return function(lib)
 		-- ToDo Check widget type
 		widget:get("WidgetComponent").active = false
 		self.eventManager:fireEvent(ActivationEvent(widget, false))
-	end
-
-	function Canvas:setMode(mode)
-		if mode then
-			if mode == "mouse" or mode == "input" then
-				self.mode = mode
-				self.eventManager:fireEvent(CanvasModeEvent(mode))
-			end
-		end
 	end
 
 	return Canvas

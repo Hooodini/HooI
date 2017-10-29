@@ -52,7 +52,9 @@ return function(lib)
         			elseif event.class.name == "MouseReleased" then
         				if cc.pressed then
         					cc.pressed = false
-                            entity.eventManager:fireEvent(HooI.events.ClickEvent(entity, event.button, false))
+                            if not entity.eventManager:fireEvent(HooI.events.ClickEvent(entity, event.button, false)) then
+                                cc:clickCallback(entity)
+                            end
         				end
         				return true
         			end
