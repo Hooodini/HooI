@@ -1,0 +1,3 @@
+[submodule "lib/HooECS"]
+	path = lib/HooECS
+	url = https://github.com/Hooodini/HooECS
