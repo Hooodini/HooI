@@ -5,16 +5,16 @@ return function(lib)
     local ClickableComponent = HooI.component.create("ClickableComponent")
 
     function ClickableComponent:initialize(...)
-    	HooI.initComponent(self, {
-    		{name = "clickCallback", varType = "function", default = function() print("click") end}, 
-    		{name = "layer", varType = "number", default = 1},
-    		{name = "x", varType = "number", default = 0},
-    		{name = "y", varType = "number", default = 0},
-    		{name = "w", varType = "number", default = 0},
-    		{name = "h", varType = "number", default = 0},
-    	}, ...)
+        HooI.initComponent(self, {
+            {name = "executedCallback", varType = "function", default = function() print("click") end}, 
+            {name = "layer", varType = "number", default = 1},
+            {name = "dx", varType = "number", default = 0},
+            {name = "dy", varType = "number", default = 0},
+            {name = "dw", varType = "number", default = 0},
+            {name = "dh", varType = "number", default = 0},
+        }, ...)
 
-    	self.pressed = false
+        self.pressed = false
     end
 
     return ClickableComponent

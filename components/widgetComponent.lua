@@ -4,11 +4,13 @@ return function(lib)
     HooI = lib
     local WidgetComponent = HooI.component.create("WidgetComponent")
 
-    function WidgetComponent:initialize(x, y, w, h)
-        self.x = x or 0
-        self.y = y or 0
-        self.w = w or 50
-        self.h = h or 50
+    function WidgetComponent:initialize(...)
+        HooI.initComponent(self, {
+            {name = "x", varType = "number", default = 0}, 
+            {name = "y", varType = "number", default = 0}, 
+            {name = "w", varType = "number", default = 50}, 
+            {name = "h", varType = "number", default = 50}
+        }, ...)
     end
 
     return WidgetComponent
