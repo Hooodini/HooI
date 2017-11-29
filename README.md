@@ -1,3 +1,5 @@
+This project is on hold while I try to figure out a nice way to solve layering whilst taking care of various other stuff. 
+
 <h1 align="center">HooI</h1>
 
 HooI is a UI library written to be used with the LÖVE 2D game engine and is currently still under development and non production ready.
